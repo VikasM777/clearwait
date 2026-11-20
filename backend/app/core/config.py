@@ -3,14 +3,11 @@ from pydantic_settings import BaseSettings
 from pydantic import field_validator
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "ClearWait API"
+    PROJECT_NAME: str = "Clearwait Clinic API"
     ENVIRONMENT: str = "production"
     SECRET_KEY: str = "super-secret-key-clearwait-production-min-32-chars"
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
-
     DATABASE_URL: str = "sqlite:///./clearwait.db"
-    CORS_ORIGINS: Union[str, List[str]] = "https://vikasm777.github.io,http://localhost:3000,http://localhost:8000,http://127.0.0.1:5500"
+    CORS_ORIGINS: Union[str, List[str]] = "https://vikasm777.github.io,http://localhost:3000,http://127.0.0.1:5500,http://localhost:8000"
 
     @field_validator("CORS_ORIGINS", mode="after")
     @classmethod

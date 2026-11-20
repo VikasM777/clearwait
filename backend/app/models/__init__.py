@@ -1,12 +1,3 @@
-from app.models.models import User, Machine, BlockedHour, UsageRecord, Booking, UserRole, MachineStatus, BookingStatus
+from app.models.models import Appointment, Patient, Record, Prescription
 
-__all__ = [
-    "User",
-    "Machine",
-    "BlockedHour",
-    "UsageRecord",
-    "Booking",
-    "UserRole",
-    "MachineStatus",
-    "BookingStatus",
-]
+__all__ = ["Appointment", "Patient", "Record", "Prescription"]

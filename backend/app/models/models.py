@@ -1,82 +1,48 @@
-from datetime import datetime, date
-import enum
-from sqlalchemy import (
-    Column, Integer, String, Enum, ForeignKey, Date, DateTime, UniqueConstraint, Index
-)
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, Text, Float, DateTime
+from datetime import datetime
 from app.db.session import Base
 
-class UserRole(str, enum.Enum):
-    RESIDENT = "resident"
-    ADMIN = "admin"
+class Appointment(Base):
+    __tablename__ = "appointments"
 
-class MachineStatus(str, enum.Enum):
-    AVAILABLE = "available"
-    OCCUPIED = "occupied"
-    MAINTENANCE = "maintenance"
+    id = Column(String(50), primary_key=True, index=True)
+    name = Column(String(150), nullable=False)
+    phone = Column(String(50), nullable=True)
+    date = Column(String(20), nullable=False) # YYYY-MM-DD
+    time = Column(String(20), nullable=False) # HH:MM
+    status = Column(String(30), default="booked", nullable=False) # booked, cancelled, noshow, arrived
+    remindedAt = Column(Float, nullable=True) # unix ms timestamp
+    rescheduled = Column(Integer, default=0, nullable=False)
+    created = Column(Float, default=lambda: datetime.utcnow().timestamp() * 1000)
 
-class BookingStatus(str, enum.Enum):
-    CONFIRMED = "confirmed"
-    CANCELLED = "cancelled"
+class Patient(Base):
+    __tablename__ = "patients"
 
-class User(Base):
-    __tablename__ = "users"
+    id = Column(String(50), primary_key=True, index=True)
+    name = Column(String(150), nullable=False)
+    code = Column(String(10), index=True, nullable=False) # 4 digit code
+    status = Column(String(30), default="waiting", nullable=False) # waiting, in, done
+    startedAt = Column(Float, nullable=True)
+    doneAt = Column(Float, nullable=True)
+    created = Column(Float, default=lambda: datetime.utcnow().timestamp() * 1000)
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100), nullable=False)
-    email = Column(String(255), unique=True, index=True, nullable=False)
-    hashed_password = Column(String(255), nullable=False)
-    role = Column(Enum(UserRole), default=UserRole.RESIDENT, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+class Record(Base):
+    __tablename__ = "records"
 
-    bookings = relationship("Booking", back_populates="user", cascade="all, delete-orphan")
+    id = Column(String(50), primary_key=True, index=True)
+    name = Column(String(150), nullable=False)
+    phone = Column(String(50), nullable=True)
+    age = Column(String(20), nullable=True)
+    allergies = Column(Text, nullable=True)
+    history = Column(Text, nullable=True)
+    created = Column(Float, default=lambda: datetime.utcnow().timestamp() * 1000)
 
-class Machine(Base):
-    __tablename__ = "machines"
+class Prescription(Base):
+    __tablename__ = "prescriptions"
 
-    id = Column(String(50), primary_key=True, index=True) # e.g. M1, M2
-    name = Column(String(100), nullable=False)
-    status = Column(Enum(MachineStatus), default=MachineStatus.AVAILABLE, nullable=False)
-
-    records = relationship("UsageRecord", back_populates="machine", cascade="all, delete-orphan")
-    bookings = relationship("Booking", back_populates="machine", cascade="all, delete-orphan")
-
-class BlockedHour(Base):
-    __tablename__ = "blocked_hours"
-
-    id = Column(Integer, primary_key=True, index=True)
-    hour = Column(Integer, unique=True, nullable=False) # 6 to 22
-
-class UsageRecord(Base):
-    __tablename__ = "usage_records"
-
-    id = Column(Integer, primary_key=True, index=True)
-    date = Column(Date, index=True, nullable=False)
-    hour = Column(Integer, nullable=False) # 6 to 22
-    machine_id = Column(String(50), ForeignKey("machines.id", ondelete="CASCADE"), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-
-    machine = relationship("Machine", back_populates="records")
-
-    __table_args__ = (
-        Index("idx_usage_date_hour", "date", "hour"),
-    )
-
-class Booking(Base):
-    __tablename__ = "bookings"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    machine_id = Column(String(50), ForeignKey("machines.id", ondelete="CASCADE"), nullable=False)
-    date = Column(Date, nullable=False)
-    hour = Column(Integer, nullable=False) # 6 to 22
-    status = Column(Enum(BookingStatus), default=BookingStatus.CONFIRMED, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-
-    user = relationship("User", back_populates="bookings")
-    machine = relationship("Machine", back_populates="bookings")
-
-    __table_args__ = (
-        # Note: server-side conflict check explicitly validates confirmed bookings
-        Index("idx_booking_d_h_m", "date", "hour", "machine_id"),
-    )
+    id = Column(String(50), primary_key=True, index=True)
+    patient = Column(String(50), nullable=False, index=True) # refers to Record.id
+    doctor = Column(String(150), nullable=True)
+    meds = Column(Text, nullable=False)
+    advice = Column(Text, nullable=True)
+    created = Column(Float, default=lambda: datetime.utcnow().timestamp() * 1000)
