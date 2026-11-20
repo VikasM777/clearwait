@@ -137,7 +137,7 @@ main>section:not([hidden]){animation:fi .35s both}@keyframes fi{from{opacity:0;t
 
 <section id="s_appts" hidden>
  <div class="card"><label id="aTitle">Book an appointment</label>
-  <div class="g"><input id="an" placeholder="Patient name"><input id="ap" placeholder="WhatsApp number with country code" inputmode="tel"><input id="ad" type="date" aria-label="Date"><input id="at" type="time" aria-label="Time"></div>
+  <div class="g"><input id="an" placeholder="Patient name"><input id="ap" placeholder="WhatsApp number" inputmode="tel"><input id="ad" type="date" aria-label="Date"><input id="at" type="time" aria-label="Time" step="60"></div>
   <button class="b" id="aSave">Book appointment</button></div>
  <div class="card" id="remCard" hidden><label for="rm">Reminder message</label><textarea id="rm"></textarea>
   <div class="row"><a class="b" id="wa" target="_blank" rel="noopener">Open in WhatsApp</a><a class="b s" id="sm" style="color:var(--ink)">Send as SMS</a><button class="b s" id="cp">Copy</button><button class="b s" id="rg">Rewrite with AI</button></div></div>
@@ -279,11 +279,40 @@ $('rg').onclick=function(){var a=A.items.filter(function(x){return x.id===remFor
 $('cp').onclick=function(){$('rm').select();try{navigator.clipboard.writeText($('rm').value)}catch(e){}};
 ['wa','sm'].forEach(function(i){$(i).addEventListener('click',function(){if(remFor)run(A.upd(remFor,{remindedAt:Date.now()}))})});
 $('aSave').onclick=function(){
-  var d={name:$('an').value.trim(),phone:$('ap').value.trim(),date:$('ad').value,time:$('at').value};
-  if(!d.name||!d.date||!d.time){note('Enter the patient name, date and time.');return}note('');
-  if(editId){run(A.upd(editId,{date:d.date,time:d.time,name:d.name,phone:d.phone,status:'booked',remindedAt:null,rescheduled:true}));editId=null}
-  else{d.status='booked';d.created=Date.now();run(A.add(d))}
-  $('an').value=$('ap').value='';$('aTitle').textContent='Book an appointment';$('aSave').textContent='Book appointment';
+  var name = $('an').value.trim();
+  var phone = $('ap').value.trim();
+  var date = $('ad').value;
+  var time = $('at').value;
+
+  if(!name){
+    note('Please enter the patient name.');
+    $('an').focus();
+    return;
+  }
+  if(!date){
+    note('Please select an appointment date.');
+    $('ad').focus();
+    return;
+  }
+  // Default to 10:00 AM if time was left unset
+  if(!time){
+    time = '10:00';
+    $('at').value = '10:00';
+  }
+  note('');
+
+  var d={name:name, phone:phone, date:date, time:time};
+  if(editId){
+    run(A.upd(editId,{date:d.date,time:d.time,name:d.name,phone:d.phone,status:'booked',remindedAt:null,rescheduled:true}));
+    editId=null;
+  } else {
+    d.status='booked';
+    d.created=Date.now();
+    run(A.add(d));
+  }
+  $('an').value=$('ap').value=$('ad').value=$('at').value='';
+  $('aTitle').textContent='Book an appointment';
+  $('aSave').textContent='Book appointment';
 };
 function renderA(){
   var l=A.items.slice().sort(function(a,b){return when(a)-when(b)}),h='',c={booked:0,cancelled:0,noshow:0};
