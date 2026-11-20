@@ -1,369 +1,605 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
+<html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Clearwait – Live clinic queue</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<title>ClearWait – Smart Scheduling and Usage Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-:root{--bg:#F3F6F8;--surface:#fff;--ink:#12263A;--muted:#546677;--line:#D5DEE5;--brand:#0F2A43;--bi:#F3F6F8;--ok:#1F8A70;--oi:#fff;--warn:#C8811A;--bad:#B3392F;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0B1722;--surface:#13273A;--ink:#EAF0F4;--muted:#9FB2C0;--line:#25405A;--brand:#07111A;--bi:#EAF0F4;--ok:#3CB594;--oi:#06201A;--warn:#E3A24A;--bad:#E8776D}}
-:root[data-theme="dark"]{--bg:#0B1722;--surface:#13273A;--ink:#EAF0F4;--muted:#9FB2C0;--line:#25405A;--brand:#07111A;--bi:#EAF0F4;--ok:#3CB594;--oi:#06201A;--warn:#E3A24A;--bad:#E8776D}
-*,*::before,*::after{box-sizing:inherit}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 Figtree,system-ui,sans-serif}
-h1,h2{font-family:Fraunces,Georgia,serif;margin:0;line-height:1.1}
-:focus-visible{outline:3px solid var(--warn);outline-offset:2px}
-header{background:var(--brand);color:var(--bi)}
-.w{max-width:860px;margin:0 auto;padding:0 1.1rem}
-.top{display:flex;justify-content:space-between;align-items:center;padding:1rem 0}
-.top h1{font-size:1.4rem}
-.tabs{display:flex;gap:.4rem}
-.tabs button{background:transparent;color:var(--bi);border:2px solid transparent;border-radius:.5rem;padding:.45rem .9rem;font:600 .95rem Figtree,sans-serif;cursor:pointer;opacity:.8}
-.tabs button[aria-selected=true]{border-color:var(--bi);opacity:1}
-main{padding:1.5rem 0 3rem}
-.note{background:var(--surface);border:1px solid var(--warn);border-radius:.5rem;padding:.7rem 1rem;margin-bottom:1rem;display:none;color:var(--muted)}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:.75rem;padding:1.25rem;margin-bottom:1.25rem}
-.row{display:flex;gap:.6rem;flex-wrap:wrap}
-input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:.5rem;padding:.65rem .8rem;flex:1;min-width:9rem}
-label{display:block;font-weight:600;margin-bottom:.3rem}
-.b{font:600 .95rem Figtree,sans-serif;border:0;border-radius:.5rem;padding:.65rem 1rem;cursor:pointer;background:var(--ok);color:var(--oi)}
-.b.s{background:transparent;color:var(--ink);border:1px solid var(--line);padding:.4rem .7rem}
-.b.d{background:transparent;color:var(--bad);border:1px solid var(--line);padding:.4rem .7rem}
-.scroll{overflow-x:auto}
-table{width:100%;border-collapse:collapse}
-th,td{text-align:left;padding:.65rem .5rem;border-bottom:1px solid var(--line);vertical-align:middle;white-space:nowrap}
-th{color:var(--muted);font-weight:500;font-size:.9rem}
-.pill{display:inline-block;padding:.1rem .6rem;border-radius:1rem;font-size:.85rem;font-weight:600;background:var(--line)}
-.pill.in{background:var(--ok);color:var(--oi)}
-.big{font:700 5rem/1 Fraunces,serif;margin:.4rem 0}
-.big small{font-size:1.5rem;color:var(--muted);margin-left:.4rem}
-.muted{color:var(--muted)}
-.stats{display:flex;gap:2rem;flex-wrap:wrap;margin:0 0 1rem}
-.stats b{display:block;font:700 1.8rem Fraunces,serif}
-textarea,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:.5rem;padding:.65rem .8rem;width:100%;margin-bottom:.7rem}
-textarea{min-height:5rem}
-.tabs{flex-wrap:wrap}.g{display:grid;gap:.7rem;grid-template-columns:1fr 1fr}@media(max-width:600px){.g{grid-template-columns:1fr}}
-.pill.x{background:var(--bad);color:#fff}.pill.w{background:var(--warn);color:#12263A}
-a.b{text-decoration:none;display:inline-block}
-#rxprint{display:none;padding:2rem;color:#000;background:#fff;font:16px/1.5 Georgia,serif}
-@media print{header,main{display:none!important}#rxprint{display:block!important}}
-.opt{display:flex;flex-direction:column;gap:.3rem;text-align:left;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:.75rem;padding:1.2rem;font:inherit;cursor:pointer}
-.opt b{font:700 1.25rem Fraunces,Georgia,serif}.opt span{color:var(--muted)}.opt:hover{border-color:var(--ok)}
-
-body{background:radial-gradient(1200px 500px at 85% -10%,color-mix(in srgb,var(--ok) 16%,transparent),transparent),var(--bg);min-height:100vh}
-header{position:sticky;top:0;z-index:5;box-shadow:0 2px 14px rgba(0,0,0,.18)}
-.top h1{display:flex;align-items:center;gap:.55rem;font-size:1.5rem}
-.tabs button{transition:background .15s;border-radius:2rem}.tabs button:hover{background:rgba(255,255,255,.12)}
-.tabs button[aria-selected=true]{background:var(--bi);color:var(--brand);border-color:var(--bi)}
-.card{border-radius:1.1rem;box-shadow:0 6px 22px rgba(15,42,67,.08);padding:1.5rem}
-.b{border-radius:.7rem;transition:transform .12s,filter .12s}.b:hover{filter:brightness(1.07);transform:translateY(-1px)}
-input,textarea,select{border-radius:.7rem;border-width:1.5px}input:focus,textarea:focus,select:focus{border-color:var(--ok);outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 25%,transparent)}
-tbody tr:hover{background:color-mix(in srgb,var(--ok) 7%,transparent)}
-.pill{padding:.2rem .7rem}
-.hero2{position:relative;overflow:hidden;display:grid;grid-template-columns:1.2fr .8fr;gap:2rem;align-items:center;background:linear-gradient(135deg,#0F2A43,#14495A);color:#EAF0F4;border-radius:1.5rem;padding:2.6rem 2rem;margin-bottom:1.8rem}
-.hero2::before{content:"";position:absolute;right:-90px;top:-90px;width:320px;height:320px;border-radius:50%;background:#F2C037;opacity:.16}
-.hero2::after{content:"";position:absolute;left:-60px;bottom:-110px;width:240px;height:240px;border-radius:50%;border:34px solid #3CB594;opacity:.18}
-.hero2>*{position:relative;z-index:1}
-@media(max-width:760px){.hero2{grid-template-columns:1fr;padding:2rem 1.3rem}}
-.hero2 h2{font-size:clamp(2.3rem,6vw,3.7rem);font-weight:700;letter-spacing:-.02em}
-.hero2 p{font-size:1.15rem;opacity:.9;margin:1rem 0 1.5rem;max-width:30rem}
-.big2{padding:.9rem 1.4rem;font-size:1.02rem;background:#F2C037;color:#12263A}.big2.gh{background:transparent;color:#EAF0F4;border:2px solid rgba(234,240,244,.7)}
-.ticket{background:var(--surface);color:var(--ink);border-radius:1.3rem;padding:1.4rem;transform:rotate(2deg);box-shadow:0 22px 44px rgba(0,0,0,.35);max-width:20rem;justify-self:center;width:100%}
-.tn{font:700 4.6rem/1 Fraunces,serif;margin:.3rem 0}.tn small{font-size:1.3rem;color:var(--muted);margin-left:.35rem}
-.qd{display:flex;gap:.35rem}.qd span{flex:1;height:.55rem;border-radius:1rem;background:var(--line)}.qd span.f{background:var(--ok)}.qd span.y{background:#F2C037}
-.sec{font:700 1.5rem Fraunces,serif;margin:0 0 1rem}
-.tiles{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))}
-.opt{position:relative;gap:.45rem;padding:1.4rem;border-radius:1.1rem;border:1px solid color-mix(in srgb,var(--c) 30%,var(--line));background:color-mix(in srgb,var(--c) 11%,var(--surface));box-shadow:0 6px 18px rgba(15,42,67,.07);transition:transform .15s,box-shadow .15s}
-.opt:hover{transform:translateY(-4px);box-shadow:0 14px 28px rgba(15,42,67,.16);border-color:var(--c)}
-.opt i{width:3rem;height:3rem;border-radius:.9rem;display:grid;place-items:center;background:var(--c);color:#fff;font-style:normal;margin-bottom:.5rem}
-.opt b{font-size:1.3rem}
-@media(prefers-reduced-motion:reduce){.opt,.b{transition:none}}
-
-.live{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.12);border-radius:2rem;padding:.3rem .9rem;font-size:.9rem;font-weight:600;margin:0 0 1rem!important;opacity:1!important}
-.ld{width:.6rem;height:.6rem;border-radius:50%;background:#3CB594;animation:pu 1.6s infinite}
-@keyframes pu{0%{box-shadow:0 0 0 0 rgba(60,181,148,.7)}100%{box-shadow:0 0 0 .7rem rgba(60,181,148,0)}}
-.beat{position:absolute!important;left:0;right:0;bottom:.4rem;width:100%;height:46px;opacity:.28;z-index:0!important}
-.beat path{fill:none;stroke:#3CB594;stroke-width:2.5;stroke-dasharray:700;stroke-dashoffset:700;animation:bt 4s linear infinite}
-@keyframes bt{0%{stroke-dashoffset:700}60%,100%{stroke-dashoffset:0}}
-.pl{position:absolute!important;font:700 2rem/1 Figtree,sans-serif;font-style:normal;color:#F2C037;opacity:.45;z-index:0!important;animation:fl 7s ease-in-out infinite}
-.p1{left:46%;top:12%}.p2{left:8%;bottom:16%;animation-delay:-2s;font-size:1.4rem;color:#3CB594}.p3{right:6%;bottom:12%;animation-delay:-4s}
-@keyframes fl{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-16px) rotate(20deg)}}
-.ticket{animation:tf 5s ease-in-out infinite}
-@keyframes tf{0%,100%{transform:rotate(2deg) translateY(0)}50%{transform:rotate(1deg) translateY(-8px)}}
-.hero2 h2,.hero2>div>p,.hero2 .row{animation:up .7s both}.hero2 .row{animation-delay:.25s}
-.opt{animation:up .6s both}.opt:nth-child(1){animation-delay:.1s}.opt:nth-child(2){animation-delay:.2s}.opt:nth-child(3){animation-delay:.3s}.opt:nth-child(4){animation-delay:.4s}.opt:nth-child(5){animation-delay:.5s}
-@keyframes up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
-.opt:hover i{animation:wg .5s}@keyframes wg{30%{transform:rotate(-12deg) scale(1.1)}70%{transform:rotate(10deg) scale(1.1)}}
-.stats2{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:1rem;margin-bottom:1.8rem}
-.stats2>div{background:var(--surface);border:1px solid var(--line);border-radius:1rem;padding:1rem 1.1rem;text-align:center;box-shadow:0 6px 18px rgba(15,42,67,.06)}
-.stats2 b{display:block;font:700 2.3rem/1 Fraunces,serif;color:var(--ok)}.stats2 span{color:var(--muted);font-size:.92rem}
-main>section:not([hidden]){animation:fi .35s both}@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-#toast{position:fixed;left:50%;bottom:calc(1.4rem + env(safe-area-inset-bottom,0px));transform:translate(-50%,2rem);background:var(--ok);color:var(--oi);font-weight:600;padding:.7rem 1.3rem;border-radius:2rem;box-shadow:0 10px 26px rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:.3s;z-index:20}
-#toast.on{opacity:1;transform:translate(-50%,0)}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.beat path{stroke-dashoffset:0}}
-</style>
-</head>
-<body>
-<header><div class="w"><div class="top"><h1><svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="#F2C037"/><path d="M16 8v8l5 3" stroke="#0F2A43" stroke-width="3" fill="none" stroke-linecap="round"/></svg>Clearwait</h1>
-<div class="tabs" role="tablist" id="tabs"></div></div></div></header>
-<main class="w">
-<div class="note" id="note"></div>
-
-<section id="s_home">
- <div class="hero2">
-  <div>
-   <p class="live"><span class="ld"></span>Live <span id="clk"></span></p>
-   <h2>Your clinic, always on time.</h2>
-   <p>Book visits, see your live waiting time, and keep records and prescriptions in one place.</p>
-   <div class="row"><button class="b big2" data-go="appts">Book an appointment</button><button class="b big2 gh" data-go="pat">Check my wait</button></div>
-  </div>
-  <svg class="beat" viewBox="0 0 600 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 30h170l16-22 22 44 18-34 12 12h362"/></svg><i class="pl p1">+</i><i class="pl p2">+</i><i class="pl p3">+</i>
-  <div class="ticket" aria-label="Example live wait ticket">
-   <p class="muted" style="margin:0">Your estimated wait</p>
-   <div class="tn"><span id="tk">14</span><small>min</small></div>
-   <div class="qd" id="qd"></div>
-   <p id="tka" style="margin:.7rem 0 0;font-weight:600">3 patients ahead of you</p>
-  </div>
- </div>
- <div class="stats2">
-  <div><b id="h1">0</b><span>waiting now</span></div><div><b id="h2">0</b><span>appointments booked</span></div><div><b id="h3">0</b><span>patient records saved</span></div><div><b id="h4">0</b><span>prescriptions written</span></div>
- </div>
- <h3 class="sec">Choose what you need</h3>
- <div class="tiles">
-<button class="opt" style="--c:#1F8A70" data-go="appts"><i><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></i><b>Appointments</b><span>Book, reschedule, cancel and send reminders</span></button><button class="opt" style="--c:#C8811A" data-go="pat"><i><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></i><b>Check my wait</b><span>See your live waiting time</span></button><button class="opt" style="--c:#3B6FD4" data-go="queue"><i><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></i><b>Queue</b><span>Front desk: patients waiting today</span></button><button class="opt" style="--c:#8A4FBF" data-go="rec"><i><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></i><b>Patient records</b><span>Save and search patient details</span></button><button class="opt" style="--c:#C8483F" data-go="rx"><i><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h7"/></svg></i><b>Prescriptions</b><span>Write, print or send digital prescriptions</span></button>
- </div>
-</section>
-
-<section id="s_appts" hidden>
- <div class="card"><label id="aTitle">Book an appointment</label>
-  <div class="g"><input id="an" placeholder="Patient name"><input id="ap" placeholder="WhatsApp number with country code" inputmode="tel"><input id="ad" type="date" aria-label="Date"><input id="at" type="time" aria-label="Time"></div>
-  <button class="b" id="aSave">Book appointment</button></div>
- <div class="card" id="remCard" hidden><label for="rm">Reminder message</label><textarea id="rm"></textarea>
-  <div class="row"><a class="b" id="wa" target="_blank" rel="noopener">Open in WhatsApp</a><a class="b s" id="sm" style="color:var(--ink)">Send as SMS</a><button class="b s" id="cp">Copy</button><button class="b s" id="rg">Rewrite with AI</button></div></div>
- <div class="card"><div class="stats"><div><b id="kB">0</b><span class="muted">booked</span></div><div><b id="kC">0</b><span class="muted">cancelled in advance</span></div><div><b id="kN">0</b><span class="muted">no-shows</span></div></div>
-  <div class="scroll"><table><thead><tr><th>When</th><th>Patient</th><th>Status</th><th></th></tr></thead><tbody id="aRows"></tbody></table></div>
-  <p class="muted" id="aEmpty" style="margin:.8rem 0 0">No appointments yet.</p></div>
-</section>
-
-<section id="s_queue" hidden>
- <div class="card"><label for="nm">Add a walk-in patient</label>
-  <div class="row"><input id="nm" placeholder="Patient name" autocomplete="off"><button class="b" id="add">Add to queue</button></div></div>
- <div class="card">
-  <div class="stats"><div><b id="sW">0</b><span class="muted">waiting</span></div><div><b id="sA">10 min</b><span class="muted">average visit</span></div></div>
-  <div class="scroll"><table><thead><tr><th>#</th><th>Patient</th><th>Code</th><th>Status</th><th>Est. wait</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
-  <p class="muted" id="empty" style="margin:.8rem 0 0">No patients in the queue.</p></div>
-</section>
-
-<section id="s_rec" hidden>
- <div class="card"><label for="rt">Paste or type details in any format</label>
-  <textarea id="rt" placeholder="e.g. Ravi Kumar, 45, male, 98765 43210. Diabetic since 2015. Allergic to penicillin."></textarea>
-  <button class="b s" id="rai">Fill the fields with AI</button></div>
- <div class="card"><label>Patient record</label>
-  <div class="g"><input id="rn" placeholder="Name"><input id="rp" placeholder="Phone"><input id="ra" placeholder="Age"><input id="rl" placeholder="Allergies"></div>
-  <textarea id="rh" placeholder="Medical history and notes"></textarea><button class="b" id="rsave">Save record</button></div>
- <div class="card"><input id="rq" placeholder="Search records by name or phone" style="width:100%;margin-bottom:.8rem"><div id="rList"></div></div>
-</section>
-
-<section id="s_rx" hidden>
- <div class="card"><label for="xp">Prescription</label>
-  <select id="xp"></select><input id="xd" placeholder="Doctor name" style="width:100%;margin-bottom:.7rem">
-  <textarea id="xm" placeholder="One medicine per line, e.g. Paracetamol 500 mg, 1 tablet 3 times a day for 3 days"></textarea>
-  <textarea id="xn" placeholder="Advice or follow-up"></textarea><button class="b" id="xsave">Save prescription</button></div>
- <div class="card"><label>Saved prescriptions for this patient</label><div id="xList"></div></div>
-</section>
-
-<section id="s_pat" hidden>
- <div class="card"><label for="cd">Enter the 4-digit code from the front desk</label>
-  <div class="row"><input id="cd" inputmode="numeric" maxlength="4" placeholder="1234"><button class="b" id="go">Check my wait</button></div></div>
- <div class="card" id="res" hidden></div>
-</section>
-</main>
-<div id="rxprint"></div><div id="toast" role="status" aria-live="polite"></div>
-
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f1f8fb;--card:#fff;--ink:#0d2b40;--mut:#5c7487;--line:#e0ebf1;--blue:#1d6fd8;--teal:#0fb5a8;--g:#16a34a;--y:#eab308;--r:#dc2626;--sh:0 6px 24px rgba(20,80,120,.08)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0a1722;--card:#10222f;--ink:#e6f2f8;--mut:#8fa9ba;--line:#1d3446;--sh:0 6px 24px rgba(0,0,0,.35)}}
+:root[data-theme=dark]{--bg:#0a1722;--card:#10222f;--ink:#e6f2f8;--mut:#8fa9ba;--line:#1d3446;--sh:0 6px 24px rgba(0,0,0,.35)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,sans-serif}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:linear-gradient(100deg,#0b4fa8,#0fb5a8);color:#fff;display:flex;align-items:center;gap:16px;padding:10px 20px;flex-wrap:wrap}
+.logo{font-weight:800;font-size:18px;white-space:nowrap}nav{display:flex;gap:4px;overflow-x:auto;flex:1}
+nav a{color:#fff;text-decoration:none;padding:7px 13px;border-radius:99px;font-weight:600;font-size:13.5px;white-space:nowrap;opacity:.85;transition:.2s}
+nav a:hover,nav a.on{background:rgba(255,255,255,.22);opacity:1}
+.who{font-size:13px;display:flex;gap:10px;align-items:center}
+main{max-width:1180px;margin:0 auto;padding:22px 16px 60px;animation:in .35s}
+@keyframes in{from{opacity:0;transform:translateY(8px)}}
+h1{font-size:26px;margin:0 0 4px;font-weight:800}h2{font-size:17px;margin:0 0 12px}.sub{color:var(--mut);margin:0 0 20px}
+.grid{display:grid;gap:16px}.g4{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.card{background:var(--card);border-radius:18px;padding:18px;box-shadow:var(--sh);border:1px solid var(--line);transition:.2s;min-width:0}
+.stat:hover{transform:translateY(-3px)}.stat b{font-size:28px;display:block;font-weight:800}.stat span{color:var(--mut);font-size:13px}
+.pill{display:inline-block;padding:3px 11px;border-radius:99px;color:#fff;font-weight:700;font-size:12px}
+button,.btn{background:linear-gradient(100deg,var(--blue),var(--teal));color:#fff;border:0;padding:9px 16px;border-radius:12px;font:600 14px inherit;font-family:inherit;cursor:pointer;transition:.2s}
+button:hover{filter:brightness(1.08);transform:translateY(-1px)}button.sec{background:var(--line);color:var(--ink)}button.del{background:var(--r)}button.sm{padding:5px 10px;font-size:12px}
+input,select{font:inherit;padding:9px 11px;border:1px solid var(--line);border-radius:11px;background:var(--card);color:var(--ink);min-width:0}
+label{font-size:12px;font-weight:700;color:var(--mut);display:flex;flex-direction:column;gap:4px}
+.bar{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px}
+.wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--mut);font-size:12px}
+.cv{position:relative;height:280px}.strip{display:flex;gap:3px}.strip div{flex:1;min-width:16px;height:46px;border-radius:7px;font-size:10px;color:#fff;display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px}
+.heat{display:grid;grid-template-columns:36px repeat(17,minmax(22px,1fr));gap:2px;font-size:10px;min-width:480px}.heat div{height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#fff}
+.rec{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}.meter{height:8px;border-radius:9px;background:var(--line);margin:8px 0;overflow:hidden}.meter i{display:block;height:100%}
+.chip{display:inline-block;background:var(--line);border-radius:8px;padding:2px 8px;margin:2px;font-size:12px}
+#auth{min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#0b4fa8,#0fb5a8)}#auth .card{width:min(400px,100%)}#auth form{display:grid;gap:12px}
+#toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:#0d2b40;color:#fff;padding:10px 18px;border-radius:12px;opacity:0;transition:.3s;pointer-events:none;z-index:9}#toast.on{opacity:1}
+.loader{display:inline-block;padding:24px;color:var(--mut);text-align:center;width:100%}
+@media(max-width:600px){.g2{grid-template-columns:1fr}h1{font-size:22px}}
+</style></head><body>
+<div id="app"></div><div id="toast"></div>
 <script>
-(function(){
-var $=function(i){return document.getElementById(i)};
-function esc(s){var d=document.createElement('div');d.textContent=s==null?'':s;return d.innerHTML}
-function note(t){var e=$('note');e.textContent=t;e.style.display=t?'block':'none'}
-function mk(name){
-  var s={items:[],col:null,n:0};
-  s.add=function(d){if(s.col)return s.col.add(d);d.id='l'+(s.n++);s.items.push(d);render();return Promise.resolve()};
-  s.upd=function(id,p){if(s.col)return s.col.doc(id).update(p);s.items.forEach(function(x){if(x.id===id)Object.assign(x,p)});render();return Promise.resolve()};
-  s.del=function(id){if(s.col)return s.col.doc(id).delete();s.items=s.items.filter(function(x){return x.id!==id});render();return Promise.resolve()};
-  s.name=name;return s;
-}
-var A=mk('appts'),P=mk('patients'),R=mk('records'),X=mk('rx');
-function toast(t){var e=document.getElementById('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.remove('on')},2200)}
-function run(p){p.then(function(){toast('Saved')},function(){});return p.catch(function(){note('Could not save that change. Check your connection and permissions, then try again.')})}
-var TABS=[['home','Home'],['appts','Appointments'],['queue','Queue'],['rec','Patient records'],['rx','Prescriptions'],['pat','My wait']];
-var cur='home',editId=null,remFor=null,code='';
-function tab(k){cur=k;TABS.forEach(function(t){$('s_'+t[0]).hidden=t[0]!==k});drawTabs()}
-function drawTabs(){$('tabs').innerHTML=TABS.map(function(t){return '<button role="tab" data-k="'+t[0]+'" aria-selected="'+(t[0]===cur)+'">'+t[1]+'</button>'}).join('')}
-document.addEventListener('click',function(e){var b=e.target.closest('[data-go]');if(b){tab(b.dataset.go);window.scrollTo(0,0)}});
-$('tabs').onclick=function(e){var b=e.target.closest('button');if(b)tab(b.dataset.k)};
+/* ==========================================================================
+   CONFIG: Replace API_BASE with your deployed backend URL in production
+   (e.g., 'https://clearwait-backend.onrender.com/api')
+   ========================================================================== */
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:8000/api'
+  : 'https://clearwait-backend.onrender.com/api'; // <--- Update this to your deployed backend URL
 
-/* ---------- Appointments ---------- */
-var CLINIC='Clearwait Clinic';
-function when(a){return new Date(a.date+'T'+(a.time||'00:00'))}
-function fmt(a){return when(a).toLocaleString([],{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})}
-function digits(p){return String(p||'').replace(/\D/g,'')}
-function fallbackMsg(a){return 'Hello '+a.name+', this is a reminder of your appointment at '+CLINIC+' on '+fmt(a)+'. Reply 1 to confirm, 2 to reschedule or 3 to cancel. If you cannot come, please tell us so another patient can use your slot.'}
-function setLinks(a,m){
-  $('rm').value=m;
-  $('wa').href='https://wa.me/'+digits(a.phone)+'?text='+encodeURIComponent(m);
-  $('sm').href='sms:'+digits(a.phone)+'?body='+encodeURIComponent(m);
-}
-function aiText(prompt){return claude.use('sample').then(function(s){if(!s)throw 0;return s(prompt)}).then(function(r){return r.text.trim()})}
-function remind(id){
-  var a=A.items.filter(function(x){return x.id===id})[0];if(!a)return;
-  remFor=id;$('remCard').hidden=false;setLinks(a,fallbackMsg(a));$('remCard').scrollIntoView({block:'nearest'});
-  genMsg(a);
-}
-function genMsg(a){
-  $('rg').disabled=true;
-  aiText('Write a short, warm WhatsApp reminder, under 60 words, plain text, for '+a.name+"'s appointment at "+CLINIC+' on '+fmt(a)+'. Ask them to reply 1 to confirm, 2 to reschedule or 3 to cancel, and say that cancelling early lets another patient have the slot. Return only the message.')
-  .then(function(m){if(remFor===a.id)setLinks(a,m)}).catch(function(){}).then(function(){$('rg').disabled=false});
-}
-$('rg').onclick=function(){var a=A.items.filter(function(x){return x.id===remFor})[0];if(a)genMsg(a)};
-$('cp').onclick=function(){$('rm').select();try{navigator.clipboard.writeText($('rm').value)}catch(e){}};
-['wa','sm'].forEach(function(i){$(i).addEventListener('click',function(){if(remFor)run(A.upd(remFor,{remindedAt:Date.now()}))})});
-$('aSave').onclick=function(){
-  var d={name:$('an').value.trim(),phone:$('ap').value.trim(),date:$('ad').value,time:$('at').value};
-  if(!d.name||!d.date||!d.time){note('Enter the patient name, date and time.');return}note('');
-  if(editId){run(A.upd(editId,{date:d.date,time:d.time,name:d.name,phone:d.phone,status:'booked',remindedAt:null,rescheduled:true}));editId=null}
-  else{d.status='booked';d.created=Date.now();run(A.add(d))}
-  $('an').value=$('ap').value='';$('aTitle').textContent='Book an appointment';$('aSave').textContent='Book appointment';
-};
-function renderA(){
-  var l=A.items.slice().sort(function(a,b){return when(a)-when(b)}),h='',c={booked:0,cancelled:0,noshow:0};
-  l.forEach(function(a){
-    if(a.status==='booked')c.booked++;if(a.status==='cancelled')c.cancelled++;if(a.status==='noshow')c.noshow++;
-    var due=a.status==='booked'&&!a.remindedAt&&when(a)-Date.now()>0&&when(a)-Date.now()<864e5;
-    var lab={booked:'Booked',cancelled:'Cancelled',noshow:'No-show',arrived:'Arrived'}[a.status]||a.status;
-    var cls=a.status==='cancelled'||a.status==='noshow'?' x':'';
-    h+='<tr><td>'+esc(fmt(a))+(a.rescheduled?' <span class="muted">(rescheduled)</span>':'')+'</td><td>'+esc(a.name)+'</td><td><span class="pill'+cls+'">'+lab+'</span>'+(due?' <span class="pill w">Reminder due</span>':a.remindedAt&&a.status==='booked'?' <span class="muted">reminded</span>':'')+'</td><td>'+
-    (a.status==='booked'?'<button class="b s" data-a="rem" data-id="'+a.id+'">Remind</button> <button class="b s" data-a="res" data-id="'+a.id+'">Reschedule</button> <button class="b s" data-a="arr" data-id="'+a.id+'">Arrived</button> <button class="b d" data-a="can" data-id="'+a.id+'">Cancel</button> <button class="b d" data-a="ns" data-id="'+a.id+'">No-show</button>':'')+'</td></tr>';
-  });
-  $('aRows').innerHTML=h;$('aEmpty').style.display=l.length?'none':'block';
-  $('kB').textContent=c.booked;$('kC').textContent=c.cancelled;$('kN').textContent=c.noshow;
-}
-$('aRows').onclick=function(e){
-  var b=e.target.closest('button');if(!b)return;var id=b.dataset.id,a=A.items.filter(function(x){return x.id===id})[0],k=b.dataset.a;
-  if(k==='rem')remind(id);
-  else if(k==='res'){editId=id;$('an').value=a.name;$('ap').value=a.phone||'';$('ad').value=a.date;$('at').value=a.time;$('aTitle').textContent='Reschedule: pick a new date and time';$('aSave').textContent='Save new time';$('ad').focus();window.scrollTo(0,0)}
-  else if(k==='can')run(A.upd(id,{status:'cancelled'}));
-  else if(k==='ns')run(A.upd(id,{status:'noshow'}));
-  else if(k==='arr'){run(A.upd(id,{status:'arrived'}));run(P.add({name:a.name,code:code4(),status:'waiting',created:Date.now()}));tab('queue')}
+const $=s=>document.querySelector(s);
+const pad=n=>String(n).padStart(2,'0'),iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`,fh=h=>pad(h)+':00';
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],H0=6,HRS=Array.from({length:17},(_,i)=>i+6);
+
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),2800)}
+const charts={};function ch(id,cfg){charts[id]?.destroy();cfg.options=Object.assign({maintainAspectRatio:false,responsive:true},cfg.options||{});charts[id]=new Chart($('#'+id),cfg)}
+
+/* ---------- Token & User State ---------- */
+let currentUser = null;
+const authStore = {
+  getToken: () => localStorage.getItem('cw_jwt'),
+  setToken: (t) => localStorage.setItem('cw_jwt', t),
+  removeToken: () => localStorage.removeItem('cw_jwt'),
+  getUser: () => {
+    try { return JSON.parse(localStorage.getItem('cw_user')); } catch(e){ return null; }
+  },
+  setUser: (u) => localStorage.setItem('cw_user', JSON.stringify(u)),
+  removeUser: () => localStorage.removeItem('cw_user')
 };
 
-/* ---------- Queue ---------- */
-function code4(){var c;do{c=String(1000+Math.floor(Math.random()*9000))}while(P.items.some(function(x){return x.code===c}));return c}
-function avg(){
-  var d=P.items.filter(function(x){return x.status==='done'&&x.startedAt&&x.doneAt}).sort(function(a,b){return b.doneAt-a.doneAt}).slice(0,10);
-  if(!d.length)return 10;
-  return Math.max(3,Math.round(d.reduce(function(t,x){return t+(x.doneAt-x.startedAt)/60000},0)/d.length*10)/10);
+/* ---------- API Client ---------- */
+async function api(path, opts = {}) {
+  const token = authStore.getToken();
+  const headers = Object.assign({}, opts.headers || {});
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (!(opts.body instanceof FormData) && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
+  }
+  try {
+    const res = await fetch(API_BASE + path, Object.assign({}, opts, { headers }));
+    if (res.status === 401) {
+      authStore.removeToken();
+      authStore.removeUser();
+      currentUser = null;
+      route();
+      throw new Error('Session expired, please sign in.');
+    }
+    const contentType = res.headers.get('content-type') || '';
+    let data;
+    if (contentType.includes('application/json')) {
+      data = await res.json();
+    } else {
+      data = await res.text();
+    }
+    if (!res.ok) {
+      const errDetail = data?.detail || (typeof data === 'string' ? data : 'Request failed');
+      throw new Error(errDetail);
+    }
+    return data;
+  } catch (err) {
+    toast(err.message || 'Network error');
+    throw err;
+  }
 }
-function queue(){return P.items.filter(function(x){return x.status==='waiting'}).sort(function(a,b){return a.created-b.created})}
-function est(list){
-  var a=avg(),inn=P.items.filter(function(x){return x.status==='in'})[0],rem=0;
-  if(inn)rem=Math.max(a-(Date.now()-inn.startedAt)/60000,2);
-  return list.map(function(p,i){return Math.max(1,Math.round(rem+i*a))});
-}
-function renderQ(){
-  var q=queue(),e=est(q),inn=P.items.filter(function(x){return x.status==='in'})[0],all=(inn?[inn]:[]).concat(q),h='';
-  all.forEach(function(p,i){var w=p.status==='in';
-    h+='<tr><td>'+(i+1)+'</td><td>'+esc(p.name)+'</td><td>'+esc(p.code)+'</td><td><span class="pill'+(w?' in':'')+'">'+(w?'With doctor':'Waiting')+'</span></td><td>'+(w?'–':'~'+e[i-(inn?1:0)]+' min')+'</td><td>'+
-    (w?'<button class="b s" data-a="done" data-id="'+p.id+'">Finish visit</button>':'<button class="b s" data-a="call" data-id="'+p.id+'">Call in</button>')+' <button class="b d" data-a="del" data-id="'+p.id+'">Remove</button></td></tr>'});
-  $('rows').innerHTML=h;$('empty').style.display=all.length?'none':'block';$('sW').textContent=q.length;$('sA').textContent=avg()+' min';
-  var r=$('res');if(!code){r.hidden=true;return}r.hidden=false;
-  var p=P.items.filter(function(x){return x.code===code})[0];
-  if(!p){r.innerHTML='<p style="margin:0">We could not find that code. Check it with the front desk.</p>';return}
-  var i=q.indexOf(p),t='<p class="muted" style="margin:0">Hello '+esc(p.name)+'</p>';
-  if(p.status==='waiting')t+='<div class="big">'+e[i]+'<small>min</small></div><p style="margin:0"><b>'+(i===0?'You are next.':i+' patient'+(i===1?'':'s')+' ahead of you.')+'</b> The estimate updates as visits start and finish. You can wait outside; keep this page open.</p>';
-  else if(p.status==='in')t+='<h2 style="margin:.6rem 0">It is your turn.</h2><p style="margin:0">Please go to the consulting room.</p>';
-  else t+='<h2 style="margin:.6rem 0">Your visit is complete.</h2><p style="margin:0">Thank you for your patience.</p>';
-  r.innerHTML=t;
-}
-$('add').onclick=function(){var v=$('nm').value.trim();if(!v){$('nm').focus();return}run(P.add({name:v,code:code4(),status:'waiting',created:Date.now()}));$('nm').value=''};
-$('nm').addEventListener('keydown',function(e){if(e.key==='Enter')$('add').click()});
-$('rows').onclick=function(e){
-  var b=e.target.closest('button');if(!b)return;var id=b.dataset.id,k=b.dataset.a;
-  if(k==='call'){P.items.filter(function(x){return x.status==='in'}).forEach(function(x){run(P.upd(x.id,{status:'done',doneAt:Date.now()}))});run(P.upd(id,{status:'in',startedAt:Date.now()}))}
-  else if(k==='done')run(P.upd(id,{status:'done',doneAt:Date.now()}));else run(P.del(id));
-};
-$('go').onclick=function(){code=$('cd').value.trim();renderQ()};
-$('cd').addEventListener('keydown',function(e){if(e.key==='Enter')$('go').click()});
 
-/* ---------- Patient records ---------- */
-$('rai').onclick=function(){
-  var t=$('rt').value.trim();if(!t){$('rt').focus();return}
-  $('rai').disabled=true;$('rai').textContent='Reading...';
-  claude.use('sample').then(function(s){if(!s)throw 0;return s.json('Extract patient details from this text. Return only a JSON object with string keys name, phone, age, allergies, history (history = conditions and notes). Use an empty string if unknown. Text: '+t)})
-  .then(function(o){$('rn').value=o.name||'';$('rp').value=o.phone||'';$('ra').value=o.age||'';$('rl').value=o.allergies||'';$('rh').value=o.history||'';note('')})
-  .catch(function(){note('AI is not available here. Please type the details into the fields below.')})
-  .then(function(){$('rai').disabled=false;$('rai').textContent='Fill the fields with AI'});
-};
-$('rsave').onclick=function(){
-  var n=$('rn').value.trim();if(!n){note('Enter the patient name.');return}note('');
-  run(R.add({name:n,phone:$('rp').value.trim(),age:$('ra').value.trim(),allergies:$('rl').value.trim(),history:$('rh').value.trim(),created:Date.now()}));
-  ['rn','rp','ra','rl','rh','rt'].forEach(function(i){$(i).value=''});
-};
-function renderR(){
-  var q=$('rq').value.toLowerCase(),h='';
-  R.items.slice().sort(function(a,b){return a.name.localeCompare(b.name)}).filter(function(r){return !q||(r.name+' '+r.phone).toLowerCase().indexOf(q)>-1}).forEach(function(r){
-    h+='<div style="border-bottom:1px solid var(--line);padding:.7rem 0"><b>'+esc(r.name)+'</b> <span class="muted">'+esc([r.age&&r.age+' yrs',r.phone].filter(Boolean).join(' · '))+'</span>'+
-    (r.allergies?'<div style="color:var(--bad)">Allergies: '+esc(r.allergies)+'</div>':'')+(r.history?'<div class="muted">'+esc(r.history)+'</div>':'')+
-    '<div style="margin-top:.4rem"><button class="b s" data-a="px" data-id="'+r.id+'">Write prescription</button> <button class="b d" data-a="rd" data-id="'+r.id+'">Delete</button></div></div>'});
-  $('rList').innerHTML=h||'<p class="muted" style="margin:0">No records yet. Details saved here stay in the system even if a patient loses their file.</p>';
-  var sel=$('xp'),v=sel.value;sel.innerHTML='<option value="">Choose a patient</option>'+R.items.map(function(r){return '<option value="'+r.id+'">'+esc(r.name)+(r.phone?' ('+esc(r.phone)+')':'')+'</option>'}).join('');sel.value=v;
+const me = () => currentUser || authStore.getUser();
+
+/* ---------- booking & machine helpers ---------- */
+let cacheMachines = [];
+async function fetchMachines() {
+  try {
+    cacheMachines = await api('/machines');
+    return cacheMachines;
+  } catch (e) {
+    return cacheMachines || [];
+  }
 }
-$('rq').oninput=renderR;
-$('rList').onclick=function(e){var b=e.target.closest('button');if(!b)return;
-  if(b.dataset.a==='rd')run(R.del(b.dataset.id));else{$('xp').value=b.dataset.id;tab('rx');renderX()}};
+const mname = (id) => (cacheMachines.find(m => m.id === id)?.name) || id;
 
-/* ---------- Prescriptions ---------- */
-$('xsave').onclick=function(){
-  var id=$('xp').value,m=$('xm').value.trim();if(!id||!m){note('Choose a patient and add at least one medicine.');return}note('');
-  run(X.add({patient:id,doctor:$('xd').value.trim(),meds:m,advice:$('xn').value.trim(),created:Date.now()}));$('xm').value=$('xn').value='';
-};
-function rxText(x,r){return CLINIC+'\nPrescription for '+r.name+(r.age?' ('+r.age+' yrs)':'')+'\nDate: '+new Date(x.created).toLocaleDateString()+'\n\n'+x.meds+(x.advice?'\n\nAdvice: '+x.advice:'')+'\n\n'+(x.doctor||'')}
-function renderX(){
-  var id=$('xp').value,h='';
-  X.items.filter(function(x){return x.patient===id}).sort(function(a,b){return b.created-a.created}).forEach(function(x){
-    h+='<div style="border-bottom:1px solid var(--line);padding:.7rem 0"><span class="muted">'+esc(new Date(x.created).toLocaleDateString())+(x.doctor?' · '+esc(x.doctor):'')+'</span><div style="white-space:pre-wrap">'+esc(x.meds)+'</div>'+(x.advice?'<div class="muted">'+esc(x.advice)+'</div>':'')+
-    '<div style="margin-top:.4rem"><button class="b s" data-a="pr" data-id="'+x.id+'">Print or save as PDF</button> <button class="b s" data-a="wa" data-id="'+x.id+'">Send on WhatsApp</button></div></div>'});
-  $('xList').innerHTML=id?(h||'<p class="muted" style="margin:0">No prescriptions saved for this patient yet.</p>'):'<p class="muted" style="margin:0">Choose a patient to see their prescriptions.</p>';
+function bTable(L, adm) {
+  return L.length ? `<div class=wrap><table><tr><th>Date<th>Time<th>Machine${adm?'<th>Resident':''}<th>Status<th></tr>${L.map(b=>`<tr><td>${b.date}<td>${fh(b.hour)}<td>${b.machine_name || mname(b.machine_id)}${adm?`<td>${b.user_name || b.user_email}`:''}<td><span class=pill style="background:${b.status==='confirmed'?'var(--g)':'var(--mut)'}">${b.status}</span><td>${b.status==='confirmed'?`<button class="sm del" onclick="cancelB(${b.id})">Cancel</button>`:''}`).join('')}</table></div>` : '<p class=sub>No bookings yet.</p>';
 }
-$('xp').onchange=renderX;
-$('xList').onclick=function(e){var b=e.target.closest('button');if(!b)return;
-  var x=X.items.filter(function(v){return v.id===b.dataset.id})[0],r=R.items.filter(function(v){return v.id===x.patient})[0];if(!x||!r)return;
-  if(b.dataset.a==='pr'){$('rxprint').innerHTML='<h2>'+esc(CLINIC)+'</h2><p>Patient: <b>'+esc(r.name)+'</b>'+(r.age?', '+esc(r.age)+' yrs':'')+'<br>Date: '+esc(new Date(x.created).toLocaleDateString())+(r.allergies?'<br>Allergies: '+esc(r.allergies):'')+'</p><h3>Rx</h3><p style="white-space:pre-wrap">'+esc(x.meds)+'</p>'+(x.advice?'<p>Advice: '+esc(x.advice)+'</p>':'')+'<p style="margin-top:3rem">'+esc(x.doctor||'')+'</p>';window.print()}
-  else window.open('https://wa.me/'+digits(r.phone)+'?text='+encodeURIComponent(rxText(x,r)),'_blank','noopener');
-};
 
-var shown={};function cu(id,v){var e=document.getElementById(id),f=shown[id]||0;shown[id]=v;if(f===v){e.textContent=v;return}var t0=performance.now();(function st(t){var k=Math.min(1,(t-t0)/600);e.textContent=Math.round(f+(v-f)*k);if(k<1)requestAnimationFrame(st)})(t0)}
-function stats(){cu('h1',queue().length);cu('h2',A.items.filter(function(a){return a.status==='booked'}).length);cu('h3',R.items.length);cu('h4',X.items.length)}
-function render(){stats();renderA();renderQ();renderR();renderX()}
-note('Demo mode: data stays on this device until shared storage connects.');
-tab('home');render();setInterval(renderQ,20000);
+async function cancelB(id) {
+  try {
+    await api(`/bookings/${id}/cancel`, { method: 'PATCH' });
+    toast('Booking cancelled');
+    const p = (location.hash.slice(1) || 'dashboard');
+    if (PG[p]) PG[p]();
+  } catch (e) {}
+}
 
-if(window.claude&&claude.use){
-  claude.use('db').then(function(db){
-    if(!db)return;note('');
-    [A,P,R,X].forEach(function(s){
-      s.col=db.collection(s.name);
-      s.col.onSnapshot(function(sn){s.items=sn.docs.map(function(d){var x=d.data();x.id=d.id;return x});render()},function(){s.col=null;note('Shared storage unavailable. Changes stay on this device.')});
+async function bookSlot(d, h, m) {
+  try {
+    const res = await api('/bookings', {
+      method: 'POST',
+      body: JSON.stringify({ date: d, hour: h, machine_id: m })
     });
-  }).catch(function(){});
+    toast(`Booked ${res.machine_name || res.machine_id} · ${res.date} ${fh(res.hour)}`);
+    location.hash = 'bookings';
+    route();
+  } catch (e) {}
 }
-})();
-</script>
-<script>
-(function(){var m=14,a=3,qd=document.getElementById('qd'),tk=document.getElementById('tk'),ta=document.getElementById('tka');
-function d(){qd.innerHTML='';for(var i=0;i<6;i++){var e=document.createElement('span');e.className=i<6-a-1?'f':i===6-a-1?'y':'';qd.appendChild(e)}tk.textContent=m;ta.textContent=a===0?'You are next':a+(a===1?' patient':' patients')+' ahead of you'}
-function ck(){var n=new Date(),h=n.getHours(),g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';document.getElementById('clk').textContent=g+' · '+n.toLocaleDateString([],{weekday:'long',day:'numeric',month:'long'})+' · '+n.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}ck();setInterval(ck,30000);
-d();setInterval(function(){if(m>3){m--;if(m%4===0&&a>0)a--}else{m=14;a=3}d()},3000)})();
-</script>
-</body>
-</html>
+
+/* ---------- shell & auth ---------- */
+const NAV = [['dashboard','Dashboard'],['analytics','Analytics'],['kmeans','K-Means'],['best','Find Best Time'],['bookings','My Bookings'],['admin','Admin']];
+
+function authView(reg) {
+  $('#app').innerHTML = `<div id=auth><div class=card><h1>⚡ ClearWait</h1><p class=sub>${reg?'Create your resident account':'Sign in to schedule smarter washes'}</p>
+<form onsubmit="return doAuth(event,${!!reg})">${reg?'<input id=an placeholder="Full name" required>':''}<input id=ae type=email placeholder="Email" required><input id=ap type=password placeholder="Password (min 6)" minlength=6 required><button id=abtn>${reg?'Register':'Log in'}</button></form>
+<p class=sub style="margin:14px 0 0">${reg?'Have an account?':'New here?'} <a href=# onclick="authView(${!reg});return false">${reg?'Log in':'Register'}</a></p>
+${reg?'':'<p class=sub style="font-size:12px">Demo – resident: demo@smartlaundry.com / demo123 · admin: admin@smartlaundry.com / admin123</p>'}</div></div>`;
+}
+
+async function doAuth(e, reg) {
+  e.preventDefault();
+  const btn = $('#abtn');
+  btn.disabled = true;
+  btn.textContent = 'Please wait...';
+  const em = $('#ae').value.trim().toLowerCase();
+  const pw = $('#ap').value;
+  try {
+    let authRes;
+    if (reg) {
+      const name = $('#an').value.trim();
+      authRes = await api('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({ name, email: em, password: pw })
+      });
+    } else {
+      authRes = await api('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email: em, password: pw })
+      });
+    }
+    authStore.setToken(authRes.access_token);
+    authStore.setUser(authRes.user);
+    currentUser = authRes.user;
+    location.hash = 'dashboard';
+    route();
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = reg ? 'Register' : 'Log in';
+  }
+  return false;
+}
+
+function logout() {
+  api('/auth/logout', { method: 'POST' }).catch(()=>{});
+  authStore.removeToken();
+  authStore.removeUser();
+  currentUser = null;
+  route();
+}
+
+async function route() {
+  const token = authStore.getToken();
+  if (!token) return authView();
+  
+  if (!currentUser) {
+    try {
+      currentUser = await api('/auth/me');
+      authStore.setUser(currentUser);
+    } catch (e) {
+      return authView();
+    }
+  }
+
+  await fetchMachines();
+
+  const u = currentUser;
+  const p = (location.hash.slice(1) || 'dashboard');
+  const pg = PG[p] && (p !== 'admin' || u.role === 'admin') ? p : 'dashboard';
+  
+  Chart.defaults.color = getComputedStyle(document.body).getPropertyValue('--mut').trim() || '#5c7487';
+  Chart.defaults.font.family = "'Plus Jakarta Sans',sans-serif";
+  
+  $('#app').innerHTML = `<header><span class=logo>⚡ ClearWait</span><nav>${NAV.filter(n=>n[0]!=='admin'||u.role==='admin').map(n=>`<a href="#${n[0]}" class="${n[0]===pg?'on':''}">${n[1]}</a>`).join('')}</nav><span class=who>${u.name} · ${u.role}<button class="sm sec" onclick=logout()>Log out</button></span></header><main id=page><div class=loader>Loading data...</div></main>`;
+  
+  if (PG[pg]) PG[pg]();
+}
+
+addEventListener('hashchange', () => me() && route());
+
+/* ---------- pages ---------- */
+const PG = {};
+
+PG.dashboard = async () => {
+  $('#page').innerHTML = `<div class=loader>Loading live dashboard...</div>`;
+  try {
+    const stats = await api('/dashboard/stats');
+    const bookings = await api('/bookings');
+    const now = new Date(), td = iso(now), hr = now.getHours();
+    const u = me();
+
+    $('#page').innerHTML = `<h1>Hello, ${u.name.split(' ')[0]} 👋</h1><p class=sub>Live laundry overview for ${DAYS[now.getDay()]}, ${td}</p>
+<div class="grid g4">
+  <div class="card stat"><b>${stats.total_machines}</b><span>Total machines</span></div>
+  <div class="card stat"><b>${stats.occupied_now}</b><span>Occupied now</span></div>
+  <div class="card stat"><b>${stats.available_now}</b><span>Available now</span></div>
+  <div class="card stat"><b>${stats.confirmed_bookings}</b><span>Confirmed bookings</span></div>
+  <div class="card stat"><b>${stats.total_wash_cycles}</b><span>Total wash cycles</span></div>
+  <div class="card stat"><b>${stats.average_utilisation.toFixed(0)}%</b><span>Avg utilisation</span></div>
+  <div class="card stat"><b style="font-size:20px;padding-top:6px"><span class=pill style="background:${stats.current_demand_color}">${stats.current_demand_level}</span></b><span>Current demand</span></div>
+</div>
+<div class="card" style="margin-top:16px">
+  <h2>Today’s demand by hour</h2>
+  <div class=strip>${stats.today_demand_strip.map(s=>`<div title="${s.label} ${s.name}" style="background:${s.color};${s.is_current?'outline:3px solid var(--blue)':''}">${s.hour}</div>`).join('')}</div>
+  <p class=sub style="margin:10px 0 0;font-size:12px">🟩 Low · 🟨 Medium · 🟥 High (from K-Means clusters). Outlined = now.</p>
+</div>
+<div class="grid g2" style="margin-top:16px">
+  <div class=card>
+    <h2>Recommended times today</h2>
+    ${stats.recommended_today.length ? stats.recommended_today.map(r=>`<div class=rec style="padding:6px 0"><span><b>${r.time}</b> <span class=pill style="background:${r.cluster_color}">${r.cluster_name}</span></span><small>${r.free_machines} machines free</small></div>`).join('') : '<p class=sub>No more slots today – try tomorrow.</p>'}
+    <a class=btn href="#best" style="display:inline-block;text-decoration:none;margin-top:8px">Find best time</a>
+  </div>
+  <div class=card>
+    <h2>${u.role==='admin'?'Recent bookings':'Your bookings'}</h2>
+    ${bTable(bookings.slice(0, 5), u.role==='admin')}
+  </div>
+</div>`;
+  } catch(e) {
+    $('#page').innerHTML = `<p class=sub>Error loading dashboard stats.</p>`;
+  }
+};
+
+PG.analytics = async () => {
+  const t = new Date(), f = new Date();
+  f.setDate(t.getDate() - 28);
+  const machines = await fetchMachines();
+
+  $('#page').innerHTML = `<h1>Usage Analytics</h1><p class=sub>Explore when machines are used. Filter by date, day and machine.</p>
+<div class=bar>
+  <label>From<input type=date id=f1 value="${iso(f)}"></label>
+  <label>To<input type=date id=f2 value="${iso(t)}"></label>
+  <label>Day<select id=f3><option value=all>All days${DAYS.map((d,i)=>`<option value=${i}>${d}`).join('')}</select></label>
+  <label>Machine<select id=f4><option value=all>All machines${machines.map(m=>`<option value=${m.id}>${m.name}`).join('')}</select></label>
+</div>
+<div class="grid g2">
+  <div class=card><h2>Machine usage by hour (avg cycles/day)</h2><div class=cv><canvas id=c1></canvas></div></div>
+  <div class=card><h2>Daily usage comparison</h2><div class=cv><canvas id=c2></canvas></div></div>
+  <div class=card><h2>Weekday vs weekend</h2><div class=cv><canvas id=c3></canvas></div></div>
+  <div class=card><h2>Machine-wise utilisation (%)</h2><div class=cv><canvas id=c4></canvas></div></div>
+  <div class=card><h2>🔥 Peak-hour analysis</h2><div id=pk></div></div>
+  <div class=card><h2>🌿 Low-demand time slots</h2><div id=lw></div></div>
+  <div class=card><h2>Booking trends</h2><div class=cv><canvas id=c5></canvas></div></div>
+  <div class=card><h2>Heatmap · day × hour</h2><div id=hm></div></div>
+</div>`;
+
+  ['f1','f2','f3','f4'].forEach(i => $('#'+i).onchange = drawA);
+  drawA();
+};
+
+async function drawA() {
+  const f1 = $('#f1').value, f2 = $('#f2').value, f3 = $('#f3').value, f4 = $('#f4').value;
+  let params = new URLSearchParams();
+  if (f1) params.append('from_date', f1);
+  if (f2) params.append('to_date', f2);
+  if (f3) params.append('dow', f3);
+  if (f4) params.append('machine_id', f4);
+
+  try {
+    const data = await api(`/analytics?${params.toString()}`);
+    const H = data.hourly_avg;
+    ch('c1', {
+      type: 'bar',
+      data: {
+        labels: HRS.map(fh),
+        datasets: [{
+          data: H,
+          backgroundColor: H.map(v => v > 3.5 ? '#dc2626' : v > 2 ? '#eab308' : '#16a34a'),
+          borderRadius: 6
+        }]
+      },
+      options: { plugins: { legend: { display: false } } }
+    });
+
+    ch('c2', {
+      type: 'line',
+      data: {
+        labels: data.daily_trend.labels,
+        datasets: [{
+          data: data.daily_trend.data,
+          borderColor: '#1d6fd8',
+          backgroundColor: 'rgba(29,111,216,.15)',
+          fill: true,
+          tension: 0.35
+        }]
+      },
+      options: { plugins: { legend: { display: false } } }
+    });
+
+    ch('c3', {
+      type: 'doughnut',
+      data: {
+        labels: data.weekday_vs_weekend.labels,
+        datasets: [{
+          data: data.weekday_vs_weekend.data,
+          backgroundColor: ['#1d6fd8', '#0fb5a8']
+        }]
+      }
+    });
+
+    ch('c4', {
+      type: 'bar',
+      data: {
+        labels: data.machine_utilisation.map(m => m.machine_name),
+        datasets: [{
+          data: data.machine_utilisation.map(m => m.utilisation_pct),
+          backgroundColor: '#0fb5a8',
+          borderRadius: 6
+        }]
+      },
+      options: { indexAxis: 'y', plugins: { legend: { display: false } } }
+    });
+
+    ch('c5', {
+      type: 'line',
+      data: {
+        labels: data.booking_trends.labels,
+        datasets: [{
+          label: 'Bookings',
+          data: data.booking_trends.data,
+          borderColor: '#0fb5a8',
+          tension: 0.3
+        }]
+      },
+      options: { plugins: { legend: { display: false } } }
+    });
+
+    const ch5 = (L, c) => L.map(x => `<span class=chip style="border-left:4px solid ${c}">${fh(x.hour)} · ${x.avg.toFixed(1)}</span>`).join('');
+    $('#pk').innerHTML = ch5(data.peak_hours, '#dc2626') + '<p class=sub>Busiest hours – avoid these for short waits.</p>';
+    $('#lw').innerHTML = ch5(data.low_demand_slots, '#16a34a') + '<p class=sub>Quietest hours – best chance of a free machine.</p>';
+
+    const hm = data.heatmap;
+    $('#hm').innerHTML = `<div class=wrap><div class=heat><div></div>${hm.hours.map(h=>`<div style="color:var(--mut)">${h}</div>`).join('')}${hm.grid.map((r,d)=>`<div style="color:var(--mut);justify-content:flex-start">${DAYS[d]}</div>`+r.map((g,i)=>`<div title="${DAYS[d]} ${fh(H0+i)}: ${g.avg.toFixed(1)} cycles" style="background:hsl(${135-135*g.avg/hm.max_avg},70%,45%)">${g.avg.toFixed(1)}</div>`).join('')).join('')}</div></div>`;
+  } catch (err) {}
+}
+
+let KK = 3, KM = 'all';
+PG.kmeans = async () => {
+  $('#page').innerHTML = `<div class=loader>Running K-Means clustering algorithm...</div>`;
+  const machines = await fetchMachines();
+  try {
+    const r = await api(`/kmeans?k=${KK}&machine_id=${KM}`);
+    $('#page').innerHTML = `<h1>K-Means Clustering</h1><p class=sub>Every weekly time slot (day + hour) is grouped by how busy it usually is.</p>
+<div class=bar>
+  <label>Clusters (k)<select id=kk>${[2,3,4,5].map(k=>`<option ${k===KK?'selected':''}>${k}`).join('')}</select></label>
+  <label>Machine<select id=km><option value=all>All machines${machines.map(m=>`<option value=${m.id} ${m.id===KM?'selected':''}>${m.name}`).join('')}</select></label>
+</div>
+<div class="grid g4">${r.cents.map(c=>`<div class="card stat" style="border-top:5px solid ${c.color}"><span class=pill style="background:${c.color}">${c.name} usage</span><b>${c.avg.toFixed(2)}</b><span>centroid · avg machines busy<br>peak-day centroid: ${c.max.toFixed(2)} · ${c.n} slots</span></div>`).join('')}</div>
+<div class=card style="margin-top:16px"><h2>Cluster scatter plot</h2><div class=cv style="height:340px"><canvas id=sc></canvas></div></div>
+<div class="card" style="margin-top:16px"><h2>In simple words</h2><p>${r.total_cycles} wash cycles were analysed across ${r.total_days} days. For each of the ${r.slots.length} weekly slots we measured the average and the highest number of machines running, scaled both to the same range (z-score) and ran scikit-learn K-Means (StandardScaler, n_init=10, random_state=42).</p>
+<p>Cluster names were assigned by sorting centroids from lowest to highest: the lowest centre is <b>${r.cents[0].name}</b> (about ${r.cents[0].avg.toFixed(1)} machines busy) and the highest is <b>${r.cents.at(-1).name}</b> (about ${r.cents.at(-1).avg.toFixed(1)}). Washing in a green slot means short or no waiting; red slots are best avoided. Results are recalculated automatically on the backend whenever usage data changes.</p></div>
+<div class="grid g2" style="margin-top:16px">${r.cents.map(c=>`<div class=card style="border-left:6px solid ${c.color}"><h2>${c.name} usage slots (${c.n})</h2>${DAYS.map((d,i)=>{const hh=r.slots.filter(s=>s.d===i&&s.rank===c.rank).map(s=>s.h);return hh.length?`<div><b>${d}</b> ${hh.map(h=>`<span class=chip>${fh(h)}</span>`).join('')}</div>`:''}).join('')}</div>`).join('')}</div>`;
+
+    $('#kk').onchange = e => { KK = +e.target.value; PG.kmeans(); };
+    $('#km').onchange = e => { KM = e.target.value; PG.kmeans(); };
+
+    ch('sc', {
+      type: 'scatter',
+      data: {
+        datasets: r.cents.map(c => ({
+          label: c.name + ' usage',
+          data: r.slots.filter(s => s.rank === c.rank).map(s => ({ x: s.h + (s.d - 3) * 0.09, y: s.avg, d: s.d })),
+          backgroundColor: c.color,
+          pointRadius: 5
+        }))
+      },
+      options: {
+        scales: {
+          x: { title: { display: true, text: 'Hour of day' }, min: 5, max: 23 },
+          y: { title: { display: true, text: 'Avg machines busy' } }
+        },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: c => `${DAYS[c.raw.d]} ${fh(Math.round(c.raw.x))} · ${c.raw.y.toFixed(2)} busy`
+            }
+          }
+        }
+      }
+    });
+
+    const c0 = charts.sc;
+    r.cents.forEach(c => {
+      c0.data.datasets.push({
+        label: c.name + ' centroid',
+        type: 'line',
+        data: [{ x: 5, y: c.avg }, { x: 23, y: c.avg }],
+        borderColor: c.color,
+        borderDash: [6, 5],
+        pointRadius: 0,
+        borderWidth: 1.5
+      });
+    });
+    c0.update();
+  } catch (err) {}
+};
+
+let BS = { d: iso(new Date(Date.now() + 864e5)), p: 'Evening', m: 'any' };
+PG.best = async () => {
+  const machines = await fetchMachines();
+  const PER_KEYS = ['Morning', 'Afternoon', 'Evening'];
+  $('#page').innerHTML = `<h1>Find Best Time to Wash</h1><p class=sub>Recommendations from historical usage clusters and real confirmed bookings.</p>
+<div class=bar>
+  <label>Date<input type=date id=bd min="${iso(new Date())}" value="${BS.d}"></label>
+  <label>Period<select id=bp>${PER_KEYS.map(p=>`<option ${p===BS.p?'selected':''}>${p}`).join('')}</select></label>
+  <label>Machine<select id=bm><option value=any>Any available machine${machines.map(m=>`<option value=${m.id} ${m.id===BS.m?'selected':''}>${m.name}`).join('')}</select></label>
+  <button onclick=findBest()>Find best time</button>
+</div><div id=res><div class=loader>Loading recommendations...</div></div>`;
+
+  ['bd','bp','bm'].forEach(i => $('#'+i).onchange = findBest);
+  findBest();
+};
+
+async function findBest() {
+  BS = { d: $('#bd').value, p: $('#bp').value, m: $('#bm').value };
+  if (!BS.d) return;
+  try {
+    const data = await api(`/recommend?date=${BS.d}&period=${BS.p}&machine=${BS.m}`);
+    const r = data.recommendations;
+    const avoid = data.peak_hours_to_avoid;
+    const dayName = DAYS[new Date(BS.d + 'T00:00').getDay()];
+
+    $('#res').innerHTML = (r.length ? r.map((x, i) => `
+<div class=card style="margin-bottom:12px;border-left:6px solid ${x.cluster_color}">
+  <div class=rec>
+    <div>
+      <h2 style="margin:0">${i===0?'⭐ ':''}${x.label} <span class=pill style="background:${x.cluster_color}">${x.cluster_name}</span></h2>
+      <p class=sub style="margin:4px 0 0">${x.reason}</p>
+    </div>
+    <div style="min-width:170px">
+      <small>Expected demand ${x.expected_demand_pct.toFixed(0)}% · ${x.free_machines_count} machine${x.free_machines_count===1?'':'s'} free</small>
+      <div class=meter><i style="width:${x.expected_demand_pct}%;background:${x.cluster_color}"></i></div>
+      ${x.free_machines_count ? `<button onclick="bookSlot('${BS.d}',${x.hour},'${BS.m}')">Book slot</button>` : '<button class=sec disabled>Fully booked</button>'}
+    </div>
+  </div>
+</div>`).join('') : '<div class=card>No open slots for this selection.</div>') +
+    `<div class=card><h2>🚫 Peak hours to avoid on ${dayName}s</h2>${avoid.map(h=>`<span class=chip style="border-left:4px solid var(--r)">${fh(h)}</span>`).join('')||'None'}</div>`;
+  } catch (e) {}
+}
+
+PG.bookings = async () => {
+  $('#page').innerHTML = `<div class=loader>Loading your bookings...</div>`;
+  try {
+    const bookings = await api('/bookings');
+    $('#page').innerHTML = `<h1>My Bookings</h1><p class=sub>History, upcoming slots and cancellations.</p><div class=card>${bTable(bookings.filter(b=>b.user_email===me().email), false)}</div>`;
+  } catch (e) {}
+};
+
+PG.admin = async () => {
+  $('#page').innerHTML = `<div class=loader>Loading admin panel...</div>`;
+  try {
+    const [machines, blocked, bookings] = await Promise.all([
+      fetchMachines(),
+      api('/slots/blocked'),
+      api('/bookings')
+    ]);
+
+    $('#page').innerHTML = `<h1>Administration</h1><p class=sub>Manage machines, time slots, usage records and bookings.</p>
+<div class="grid g2">
+  <div class=card>
+    <h2>Machines</h2>
+    <div class=wrap>
+      <table>${machines.map(m=>`<tr><td>${m.name}<td><select onchange="setSt('${m.id}',this.value)">${['available','occupied','maintenance'].map(s=>`<option ${s===m.status?'selected':''}>${s}`).join('')}</select><td><button class="sm del" onclick="rmM('${m.id}')">Remove</button>`).join('')}</table>
+    </div>
+    <button class=sm style="margin-top:10px" onclick=addM()>+ Add machine</button>
+  </div>
+  <div class=card>
+    <h2>Bookable time slots</h2>
+    <p class=sub>Tap an hour to block or open it.</p>
+    ${HRS.map(h=>`<button class="sm ${blocked.includes(h)?'del':'sec'}" style="margin:2px" onclick="tgl(${h})">${fh(h)}</button>`).join('')}
+  </div>
+  <div class=card>
+    <h2>Add usage record</h2>
+    <div class=bar>
+      <label>Date<input type=date id=ud value="${iso(new Date())}"></label>
+      <label>Hour<select id=uh>${HRS.map(h=>`<option value=${h}>${fh(h)}`).join('')}</select></label>
+      <label>Machine<select id=um>${machines.map(m=>`<option value=${m.id}>${m.name}`).join('')}</select></label>
+      <button onclick=addR()>Add</button>
+    </div>
+    <label>Upload CSV (date,hour,machine)<input type=file id=uf accept=".csv" onchange=upl(this)></label>
+    <p class=sub>Usage records drive K-Means clusters automatically.</p>
+  </div>
+  <div class=card style="grid-column:1/-1">
+    <h2>All bookings</h2>
+    ${bTable(bookings, true)}
+  </div>
+</div>`;
+  } catch (e) {}
+};
+
+async function setSt(id, s) {
+  try {
+    await api(`/machines/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: s })
+    });
+    toast('Status updated');
+    await fetchMachines();
+  } catch(e) {}
+}
+
+async function rmM(id) {
+  if (!confirm(`Delete machine ${id}?`)) return;
+  try {
+    await api(`/machines/${id}`, { method: 'DELETE' });
+    toast('Machine removed');
+    PG.admin();
+  } catch(e) {}
+}
+
+async function addM() {
+  const name = prompt('Machine name (e.g. Machine 7):');
+  if (!name) return;
+  try {
+    await api('/machines', {
+      method: 'POST',
+      body: JSON.stringify({ name })
+    });
+    toast('Machine added');
+    PG.admin();
+  } catch(e) {}
+}
+
+async function tgl(h) {
+  try {
+    await api('/slots/toggle', {
+      method: 'POST',
+      body: JSON.stringify({ hour: h })
+    });
+    toast(`Hour ${fh(h)} updated`);
+    PG.admin();
+  } catch(e) {}
+}
+
+async function addR() {
+  const d = $('#ud').value, h = +$('#uh').value, m = $('#um').value;
+  try {
+    await api('/records', {
+      method: 'POST',
+      body: JSON.stringify({ date: d, hour: h, machine_id: m })
+    });
+    toast('Record added – clusters updated');
+    PG.admin();
+  } catch(e) {}
+}
+
+async function upl(input) {
+  const f = input.files[0];
+  if (!f) return;
+  const formData = new FormData();
+  formData.append('file', f);
+  try {
+    const res = await api('/records/upload-csv', {
+      method: 'POST',
+      body: formData
+    });
+    toast(res.message || 'Records imported – clusters updated');
+    PG.admin();
+  } catch(e) {}
+}
+
+route();
+</script></body></html>
